@@ -192,12 +192,12 @@ def plot_result(samples, targets, colors, initial_lines, trained_lines, mse_hist
     lines_ax.set_ylim(-1, 3)
     lines_ax.set_xlabel("X1")
     lines_ax.set_ylabel("X2")
-    lines_ax.set_title("青色虛線：訓練前    紅色：訓練後")
+    lines_ax.set_title("決策線 - 初始設定(青色) vs 訓練後(紅色)")
 
     mse_ax.plot(range(1, len(mse_history) + 1), mse_history)
     mse_ax.set_xlabel("Epoch")
-    mse_ax.set_ylabel("MSE")
-    mse_ax.set_title("Mean Square Error")
+    mse_ax.set_ylabel("Mean Square Error")
+    mse_ax.set_title("均方誤差 - 訓練過程")
 
     plt.tight_layout()
     plt.show()

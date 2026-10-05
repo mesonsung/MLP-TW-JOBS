@@ -5,6 +5,9 @@ import math
 import random
 import matplotlib.pyplot as plt
 
+plt.rcParams["font.sans-serif"] = ["Microsoft JhengHei", "Microsoft YaHei", "PMingLiU"]
+plt.rcParams["axes.unicode_minus"] = False
+
 # *****建立資料, Initialization
 xs = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
 for i in range(4):  # 列印輸入矩陣
@@ -15,7 +18,7 @@ yd = [0.0, 0.0, 0.0, 0.0]  # 目標矩陣
 w = [0.5, 0.4, 0.9, 1.0, -1.2, 1.1]  # w13, w23, w14, w24, w35, w45
 ya = [0.0, 0.0, 0.0]  # Y3, Y4, Y5 三個神經元的輸出
 theta = [0.8, -0.1, 0.3]  # T3, T4, T5 三個神經元的門檻值
-alpha = 0.2  # Learning rate
+alpha = 0.2  # Learning rate，執行時可改為 0.1 到 0.9
 x = np.arange(-1, 3, 0.01)  # 繪圖範圍
 epouch = 0  # 循環次數
 training_times = 0  # 訓練次數
@@ -41,33 +44,44 @@ for i in range(6):
 # *** 請使用者輸入資料
 print("*****This is a Multi-Layer Perceptron learning program****")
 select = eval(input("請輸入: 1<AND> or 2<OR> or 3<XOR>: "))
+fig, (line_ax, mse_ax) = plt.subplots(1, 2, figsize=(12, 5))
 if select == 1:
     yd = [0.0, 0.0, 0.0, 1.0]
-    plt.plot([0], [0], "bo")  # 繪製四點用紅色區分
-    plt.plot([0], [1], "bo")  # 繪製四點用藍色區分
-    plt.plot([1], [0], "bo")  # 繪製四點用藍色區分
-    plt.plot([1], [1], "ro")  # 繪製四點用藍色區分
+    line_ax.plot([0], [0], "bo")  # 繪製四點用紅色區分
+    line_ax.plot([0], [1], "bo")  # 繪製四點用藍色區分
+    line_ax.plot([1], [0], "bo")  # 繪製四點用藍色區分
+    line_ax.plot([1], [1], "ro")  # 繪製四點用藍色區分
 if select == 2:
     yd = [0.0, 1.0, 1.0, 1.0]
-    plt.plot([0], [0], "ro")  # 繪製四點用紅色區分
-    plt.plot([0], [1], "bo")  # 繪製四點用藍色區分
-    plt.plot([1], [0], "bo")  # 繪製四點用藍色區分
-    plt.plot([1], [1], "bo")  # 繪製四點用藍色區分
+    line_ax.plot([0], [0], "ro")  # 繪製四點用紅色區分
+    line_ax.plot([0], [1], "bo")  # 繪製四點用藍色區分
+    line_ax.plot([1], [0], "bo")  # 繪製四點用藍色區分
+    line_ax.plot([1], [1], "bo")  # 繪製四點用藍色區分
 if select == 3:
     yd = [0.0, 1.0, 1.0, 0.0]
-    plt.plot([0], [0], "ro")  # 繪製四點用紅色區分
-    plt.plot([0], [1], "bo")  # 繪製四點用藍色區分
-    plt.plot([1], [0], "bo")  # 繪製四點用藍色區分
-    plt.plot([1], [1], "ro")  # 繪製四點用紅色區分
+    line_ax.plot([0], [0], "ro")  # 繪製四點用紅色區分
+    line_ax.plot([0], [1], "bo")  # 繪製四點用藍色區分
+    line_ax.plot([1], [0], "bo")  # 繪製四點用藍色區分
+    line_ax.plot([1], [1], "ro")  # 繪製四點用紅色區分
 print("** Your learning target is\n", yd)
-plt.plot(x, line1(x), "c--")  # 畫初始設定直線, Y3
-plt.plot(x, line2(x), "c--")  # 畫初始設定直線, Y4
-plt.plot(x, axis(x), "k-")  # draw X軸
-plt.plot(axis(x), x, "k-")  # draw Y軸
+line_ax.plot(x, line1(x), "c--")  # 畫初始設定直線, Y3
+line_ax.plot(x, line2(x), "c--")  # 畫初始設定直線, Y4
+line_ax.plot(x, axis(x), "k-")  # draw X軸
+line_ax.plot(axis(x), x, "k-")  # draw Y軸
 # ******* training loop
 SE = 0.0  # square error
 Accuracy = 0.0  # Mean Square error
 MSE = 1.0
+while True:
+    try:
+        alpha = float(input("Learning rate? Ex:0.2 (0.1-0.9): "))
+    except ValueError:
+        print("請輸入數字。")
+        continue
+    if 0.1 <= alpha <= 0.9:
+        break
+    print("請輸入 0.1 到 0.9 的學習率。")
+print("Learning rate =", alpha)
 Accuracy = eval(input("What is the MSE?Ex:0.01 or 0.001 or 0.0001: "))
 while MSE > Accuracy and epouch < 100000:  # step 4, Iteration
     epouch += 1
@@ -106,13 +120,15 @@ while MSE > Accuracy and epouch < 100000:  # step 4, Iteration
     print("MSE=", MSE)
     MSElist.append(MSE)
 print("******劃出調整後的紅色直線,青色為原始設定線*******")
-plt.plot(x, line1(x), "r-")  # 畫調整後直線 Y3
-plt.plot(x, line2(x), "r--")  # 畫調整後直線 Y4
-plt.xlabel("---X1---")  # X座標軸說明
-plt.ylabel("---X2---")  # Y座標軸說明
-plt.show()  # 顯示誤差圖形
-plt.plot(range(epouch), MSElist)
-plt.xlabel("---EPOUCH No.---")  # X座標軸說明
-plt.ylabel("---MSE: Mean Square Error---")  # Y座標軸說明
+line_ax.plot(x, line1(x), "r-")  # 畫調整後直線 Y3
+line_ax.plot(x, line2(x), "r--")  # 畫調整後直線 Y4
+line_ax.set_xlabel("---X1---")  # X座標軸說明
+line_ax.set_ylabel("---X2---")  # Y座標軸說明
+line_ax.set_title("決策線 - 初始設定(青色) vs 訓練後(紅色)")
+mse_ax.plot(range(epouch), MSElist)
+mse_ax.set_xlabel("---EPOUCH No.---")  # X座標軸說明
+mse_ax.set_ylabel("---MSE: Mean Square Error---")  # Y座標軸說明
+mse_ax.set_title("均方誤差 - 訓練過程")
+fig.tight_layout()
 plt.show()
 # Program End
