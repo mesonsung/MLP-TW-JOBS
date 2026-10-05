@@ -10,15 +10,16 @@ plt.rcParams["font.sans-serif"] = ["Microsoft JhengHei", "Microsoft YaHei", "PMi
 plt.rcParams["axes.unicode_minus"] = False
 
 LEARNING_RATE = 0.2
+LEARNING_RATE_RANGE = (0.1, 0.9)
 MAX_EPOCHS = 100_000
 PLOT_X = np.arange(-1, 3, 0.01)
 
 # 輸入層的四筆資料：(x1, x2)
 SAMPLES = ((0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0))
 GATES = {
-    "1": ("AND", (0.0, 0.0, 0.0, 1.0), ("bo", "bo", "bo", "ro")),
-    "2": ("OR", (0.0, 1.0, 1.0, 1.0), ("ro", "bo", "bo", "bo")),
-    "3": ("XOR", (0.0, 1.0, 1.0, 0.0), ("ro", "bo", "bo", "ro")),
+    "1": ("AND", (0.0, 0.0, 0.0, 1.0), ("rx", "rx", "rx", "bo")),
+    "2": ("OR", (0.0, 1.0, 1.0, 1.0), ("rx", "bo", "bo", "bo")),
+    "3": ("XOR", (0.0, 1.0, 1.0, 0.0), ("rx", "bo", "bo", "rx")),
 }
 
 
@@ -100,6 +101,9 @@ class OutputLayer:
 
 class MultiLayerPerceptron:
     def __init__(self, learning_rate=LEARNING_RATE):
+        rate_low, rate_high = LEARNING_RATE_RANGE
+        if learning_rate < rate_low or learning_rate > rate_high:
+            raise ValueError(f"學習率要在 {rate_low} 到 {rate_high} 之間")
         self.learning_rate = learning_rate
         self.input_layer = InputLayer(SAMPLES)
         self.hidden_layer = HiddenLayer()
@@ -144,6 +148,20 @@ def ask_choice(prompt, options):
         print(f"請輸入 {'、'.join(options)}。")
 
 
+def ask_float(prompt, low, high):
+    while True:
+        raw = input(prompt).strip()
+        try:
+            value = float(raw)
+        except ValueError:
+            print("請輸入數字。")
+            continue
+        if value < low or value > high:
+            print(f"請輸入 {low} 到 {high} 的數值。")
+            continue
+        return value
+
+
 def ask_positive_float(prompt):
     while True:
         raw = input(prompt).strip()
@@ -159,6 +177,7 @@ def ask_positive_float(prompt):
 
 
 def print_network(model):
+    print(f"學習率: {model.learning_rate}")
     print("輸入資料:")
     for sample in model.input_layer.samples:
         print(" ".join(f"{value:.1f}" for value in sample))
@@ -205,12 +224,18 @@ def plot_result(samples, targets, colors, initial_lines, trained_lines, mse_hist
 
 def main():
     print("This is a Multi-Layer Perceptron learning program")
-    model = MultiLayerPerceptron()
-    print_network(model)
-
     choice = ask_choice("請輸入 1<AND>、2<OR> 或 3<XOR>: ", set(GATES))
     gate_name, targets, colors = GATES[choice]
     print(f"學習目標 {gate_name}: {list(targets)}")
+
+    rate_low, rate_high = LEARNING_RATE_RANGE
+    learning_rate = ask_float(
+        f"學習率（{rate_low} 到 {rate_high}，例如 {LEARNING_RATE}）: ",
+        rate_low,
+        rate_high,
+    )
+    model = MultiLayerPerceptron(learning_rate)
+    print_network(model)
 
     initial_lines = model.hidden_layer.decision_lines(PLOT_X)
     mse_target = ask_positive_float("目標 MSE（例如 0.01、0.001、0.0001）: ")

@@ -47,22 +47,22 @@ select = eval(input("請輸入: 1<AND> or 2<OR> or 3<XOR>: "))
 fig, (line_ax, mse_ax) = plt.subplots(1, 2, figsize=(12, 5))
 if select == 1:
     yd = [0.0, 0.0, 0.0, 1.0]
-    line_ax.plot([0], [0], "bo")  # 繪製四點用紅色區分
-    line_ax.plot([0], [1], "bo")  # 繪製四點用藍色區分
-    line_ax.plot([1], [0], "bo")  # 繪製四點用藍色區分
-    line_ax.plot([1], [1], "ro")  # 繪製四點用藍色區分
+    line_ax.plot([0], [0], "rx")  # 繪製四點用紅色區分
+    line_ax.plot([0], [1], "rx")  # 繪製四點用紅色區分
+    line_ax.plot([1], [0], "rx")  # 繪製四點用紅色區分
+    line_ax.plot([1], [1], "bo")  # 繪製四點用藍色區分
 if select == 2:
     yd = [0.0, 1.0, 1.0, 1.0]
-    line_ax.plot([0], [0], "ro")  # 繪製四點用紅色區分
+    line_ax.plot([0], [0], "rx")  # 繪製四點用紅色區分
     line_ax.plot([0], [1], "bo")  # 繪製四點用藍色區分
     line_ax.plot([1], [0], "bo")  # 繪製四點用藍色區分
     line_ax.plot([1], [1], "bo")  # 繪製四點用藍色區分
 if select == 3:
     yd = [0.0, 1.0, 1.0, 0.0]
-    line_ax.plot([0], [0], "ro")  # 繪製四點用紅色區分
+    line_ax.plot([0], [0], "rx")  # 繪製四點用紅色區分
     line_ax.plot([0], [1], "bo")  # 繪製四點用藍色區分
     line_ax.plot([1], [0], "bo")  # 繪製四點用藍色區分
-    line_ax.plot([1], [1], "ro")  # 繪製四點用紅色區分
+    line_ax.plot([1], [1], "rx")  # 繪製四點用紅色區分
 print("** Your learning target is\n", yd)
 line_ax.plot(x, line1(x), "c--")  # 畫初始設定直線, Y3
 line_ax.plot(x, line2(x), "c--")  # 畫初始設定直線, Y4
@@ -82,7 +82,10 @@ while True:
         break
     print("請輸入 0.1 到 0.9 的學習率。")
 print("Learning rate =", alpha)
-Accuracy = eval(input("What is the MSE?Ex:0.01 or 0.001 or 0.0001: "))
+
+Accuracy = eval(input("What is the target MSE? (例如 0.01、0.001、0.0001): "))
+print(f"目標 MSE: {Accuracy}")
+
 while MSE > Accuracy and epouch < 100000:  # step 4, Iteration
     epouch += 1
     print("epouch=", epouch)

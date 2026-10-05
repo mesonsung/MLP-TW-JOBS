@@ -264,37 +264,39 @@ def output_grid(model):
 
 
 def plot_result(model, samples, targets, initial_lines, trained_lines, mse_history):
+    fig, (line_ax, mse_ax) = plt.subplots(1, 2, figsize=(12, 5))
     xx, yy, zz = output_grid(model)
-    plt.contourf(xx, yy, zz, levels=20, cmap="coolwarm", alpha=0.45)
-    plt.colorbar(label="網路輸出")
+    contour = line_ax.contourf(xx, yy, zz, levels=20, cmap="coolwarm", alpha=0.45)
+    fig.colorbar(contour, ax=line_ax, label="網路輸出")
 
     for (x1, x2), target in zip(samples, targets):
-        marker = "ro" if target == 1.0 else "bo"
-        plt.plot([x1], [x2], marker)
+        marker = "bo" if target == 1.0 else "rx"
+        line_ax.plot([x1], [x2], marker)
 
     for line in initial_lines:
-        plt.plot(PLOT_X, line, "c--")
+        line_ax.plot(PLOT_X, line, "c--")
     trained_styles = ("-", "--", "-.", ":")
     trained_colors = ("r", "m", "g", "C1", "C4", "C5", "C6", "C8", "C9", "brown")
     for index, line in enumerate(trained_lines):
-        plt.plot(
+        line_ax.plot(
             PLOT_X,
             line,
             color=trained_colors[index % len(trained_colors)],
             linestyle=trained_styles[index % len(trained_styles)],
         )
-    plt.plot(PLOT_X, np.zeros_like(PLOT_X), "k-")
-    plt.plot(np.zeros_like(PLOT_X), PLOT_X, "k-")
-    plt.xlim(-1, 3)
-    plt.ylim(-1, 3)
-    plt.xlabel("X1")
-    plt.ylabel("X2")
-    plt.title("第一隱藏層決策線　青：訓練前　紅：訓練後　背景：網路輸出")
-    plt.show()
+    line_ax.plot(PLOT_X, np.zeros_like(PLOT_X), "k-")
+    line_ax.plot(np.zeros_like(PLOT_X), PLOT_X, "k-")
+    line_ax.set_xlim(-1, 3)
+    line_ax.set_ylim(-1, 3)
+    line_ax.set_xlabel("X1")
+    line_ax.set_ylabel("X2")
+    line_ax.set_title("決策線 - 初始設定(青色) vs 訓練後")
 
-    plt.plot(range(1, len(mse_history) + 1), mse_history)
-    plt.xlabel("Epoch")
-    plt.ylabel("MSE")
+    mse_ax.plot(range(1, len(mse_history) + 1), mse_history)
+    mse_ax.set_xlabel("Epoch")
+    mse_ax.set_ylabel("Mean Square Error")
+    mse_ax.set_title("均方誤差 - 訓練過程")
+    fig.tight_layout()
     plt.show()
 
 
@@ -309,9 +311,15 @@ def main():
     print("This is a Multi-Layer Perceptron learning program")
     print_samples(SAMPLES)
 
+    choice = ask_choice("請輸入 1<AND>、2<OR> 或 3<XOR>: ", {"1", "2", "3"})
+    gate_name, targets = GATES[int(choice)]
+    print(f"學習目標 {gate_name}: {list(targets)}")
+
     depth_text = ask_choice("隱藏層數 1、2 或 3: ", {"1", "2", "3"})
     low, high = NEURON_COUNT_RANGE
     neurons = ask_int(f"每層隱藏神經元數量（{low} 到 {high}）: ", low, high)
+    print(f"每層隱藏神經元數量: {neurons}")
+    
     rate_low, rate_high = LEARNING_RATE_RANGE
     learning_rate = ask_float(
         f"學習率（{rate_low} 到 {rate_high}，例如 {LEARNING_RATE}）: ",
@@ -320,10 +328,6 @@ def main():
     )
     model = MultiLayerPerceptron(int(depth_text), neurons, learning_rate)
     print_network(model)
-
-    choice = ask_choice("請輸入 1<AND>、2<OR> 或 3<XOR>: ", {"1", "2", "3"})
-    gate_name, targets = GATES[int(choice)]
-    print(f"學習目標 {gate_name}: {list(targets)}")
 
     initial_lines = model.first_layer_lines()
     mse_target = ask_positive_float("目標 MSE（例如 0.01、0.001、0.0001）: ")
